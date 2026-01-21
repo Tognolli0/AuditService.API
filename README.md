@@ -1,7 +1,7 @@
 AuditService.API - Central de Auditoria e Logs
 📝 Descrição do Projeto
 
-O AuditService.API é uma solução robusta desenvolvida em .NET 9 para centralizar a auditoria de acessos e logs de múltiplos sistemas corporativos, como o software SIGO. O objetivo principal é fornecer uma trilha de auditoria unificada, permitindo que diferentes aplicações (operacionais, comerciais ou de RH) registrem eventos de forma padronizada em um banco de dados SQL Server centralizado.
+O AuditService.API é uma solução robusta desenvolvida em .NET 9 para centralizar a auditoria de acessos e logs de múltiplos sistemas corporativos, como softwares de gestão. O objetivo principal é fornecer uma trilha de auditoria unificada, permitindo que diferentes aplicações (operacionais, comerciais ou de RH) registrem eventos de forma padronizada em um banco de dados SQL Server centralizado.
 
 Este serviço é essencial para conformidade com a LGPD (Lei Geral de Proteção de Dados), permitindo rastrear quem acessou determinados dados, em qual horário e qual foi o resultado da operação.
 🚀 Tecnologias Utilizadas
