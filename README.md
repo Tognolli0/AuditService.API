@@ -73,8 +73,8 @@ JSON
 JSON
 
 {
-  "applicationName": "Sistema_SIGO",
-  "usuario": "Wisesystem",
+  "applicationName": "Sistema",
+  "usuario": "WAYNE",
   "metodo": "POST",
   "endpoint": "/api/pacientes",
   "payloadRequest": "{ 'id': 123, 'acao': 'consulta' }",
