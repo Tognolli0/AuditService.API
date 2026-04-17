@@ -25,6 +25,7 @@ Padronizar o recebimento de eventos de auditoria, facilitar rastreabilidade e ap
 2. Crie a tabela de auditoria no SQL Server.
 3. Rode `dotnet run`.
 4. Acesse o Swagger para validar os endpoints.
+5. Use `appsettings.Local.example.json` como modelo de configuracao local.
 
 ## Exemplo de payload
 
@@ -42,3 +43,4 @@ Padronizar o recebimento de eventos de auditoria, facilitar rastreabilidade e ap
 ## Observacao
 
 Este projeto tem bom valor de portfolio para perfil back-end por mostrar integracao, rastreabilidade e preocupacao com observabilidade.
+Ele agora tambem expõe `GET /healthz` para verificacao simples de disponibilidade.

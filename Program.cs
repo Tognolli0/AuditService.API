@@ -1,19 +1,30 @@
+using System;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "Configure ConnectionStrings:DefaultConnection antes de iniciar a API.");
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
-// Configuração simplificada para evitar o erro CS0234
-builder.Services.AddSwaggerGen(); 
-
-// Conexão para DEVELOPER02-NB\MSSQLSERVER2019
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-                       ?? throw new System.InvalidOperationException("Connection string não encontrada.");
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new()
+    {
+        Title = "AuditService.API",
+        Version = "v1",
+        Description = "API para centralizacao de auditoria e rastreabilidade."
+    });
+});
 
 builder.Services.AddSingleton(connectionString);
 
@@ -27,5 +38,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/healthz", () => Results.Ok(new
+{
+    status = "healthy",
+    time = DateTime.UtcNow
+}));
 
 app.Run();
