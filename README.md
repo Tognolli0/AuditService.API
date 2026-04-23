@@ -2,6 +2,10 @@
 
 API em ASP.NET Core para registrar, consultar e resumir eventos de auditoria de multiplos sistemas em um ponto unico.
 
+## Visao geral
+
+Esse projeto simula um servico central de rastreabilidade. A ideia e receber eventos de diferentes aplicacoes, persistir em SQL Server e oferecer leitura rapida para suporte operacional, auditoria tecnica e cenarios de compliance.
+
 ## O que o projeto entrega
 
 - Recebimento padronizado de eventos de auditoria
@@ -17,6 +21,20 @@ API em ASP.NET Core para registrar, consultar e resumir eventos de auditoria de 
 - SQL Server
 - Dapper
 - Swagger / OpenAPI
+
+## Fluxo visual
+
+```mermaid
+flowchart LR
+    A["Sistema cliente<br/>Portal, API ou servico"] --> B["POST /api/audit-events"]
+    B --> C["Validacao do payload"]
+    C --> D["Repositorio Dapper"]
+    D --> E["Tabela dbo.AuditEvents"]
+    E --> F["GET /api/audit-events"]
+    E --> G["GET /api/audit-events/summary"]
+    F --> H["Consulta por filtros"]
+    G --> I["Resumo operacional"]
+```
 
 ## Endpoints principais
 
@@ -43,6 +61,53 @@ API em ASP.NET Core para registrar, consultar e resumir eventos de auditoria de 
 }
 ```
 
+## Como isso aparece para quem entra no GitHub
+
+Quem abrir o repositorio vai conseguir entender rapidamente:
+
+1. Qual problema a API resolve
+2. Como o fluxo funciona
+3. Quais endpoints existem
+4. Como testar pelo Swagger
+5. Como a aplicacao se comporta com banco ativo ou indisponivel
+
+Em outras palavras: mesmo sem rodar localmente, a pessoa ja enxerga que o projeto tem objetivo claro, arquitetura simples e comportamento previsivel.
+
+## Comportamento esperado
+
+### Cenario 1: API e banco disponiveis
+
+- `GET /healthz` retorna `200`
+- `POST /api/audit-events` grava o evento
+- `GET /api/audit-events` lista os registros
+- `GET /api/audit-events/summary` retorna um resumo agregado
+
+Exemplo de resposta esperada no `POST`:
+
+```json
+{
+  "id": 1,
+  "message": "Evento de auditoria registrado com sucesso."
+}
+```
+
+### Cenario 2: API no ar, mas banco indisponivel
+
+- `GET /healthz` continua retornando `200`
+- Swagger continua acessivel
+- endpoints de auditoria retornam `503` com mensagem clara
+
+Exemplo de resposta:
+
+```json
+{
+  "message": "Nao foi possivel acessar o banco de auditoria.",
+  "detail": "Erro de rede ou especifico a instancia ao estabelecer conexao com o SQL Server."
+}
+```
+
+Esse comportamento foi mantido de proposito para demonstrar resiliencia minima: a API sobe, a documentacao abre e o erro operacional fica explicito.
+
 ## Como rodar
 
 1. Ajuste `ConnectionStrings:DefaultConnection`
@@ -52,7 +117,26 @@ API em ASP.NET Core para registrar, consultar e resumir eventos de auditoria de 
 5. Opcionalmente execute `database/create-audit-table.sql` manualmente
 
 Observacao:
-Ao iniciar, a API ja tenta garantir a existencia da tabela `dbo.AuditEvents`.
+Os endpoints de auditoria garantem a existencia da tabela `dbo.AuditEvents` quando o banco esta acessivel.
+
+## Como testar visualmente
+
+### Swagger
+
+- suba a API com `dotnet run`
+- abra `/swagger`
+- envie o payload de exemplo em `POST /api/audit-events`
+- consulte `GET /api/audit-events`
+- abra `GET /api/audit-events/summary`
+
+### Arquivo HTTP
+
+O arquivo [AuditService.API.http](C:/Users/pekus/Desktop/github-audit/AuditService.API/AuditService.API.http) ja traz requests prontos para:
+
+- health check
+- criacao de evento
+- listagem
+- resumo
 
 ## Estrutura
 
@@ -70,4 +154,5 @@ Esse projeto reforca um perfil back-end por mostrar:
 - rastreabilidade
 - padronizacao de eventos
 - filtros de consulta
+- tratamento de indisponibilidade de infraestrutura
 - preocupacao com observabilidade e suporte operacional
