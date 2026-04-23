@@ -1,6 +1,36 @@
 @AuditService.API_HostAddress = http://localhost:5169
 
-GET {{AuditService.API_HostAddress}}/weatherforecast/
+### Health check
+GET {{AuditService.API_HostAddress}}/healthz
 Accept: application/json
 
 ###
+
+### Criar evento de auditoria
+POST {{AuditService.API_HostAddress}}/api/audit-events
+Content-Type: application/json
+
+{
+  "applicationName": "PortalClinico",
+  "usuario": "diogo.tognolli",
+  "metodo": "POST",
+  "endpoint": "/api/pacientes",
+  "payloadRequest": "{ \"pacienteId\": 321 }",
+  "payloadResponse": "{ \"success\": true }",
+  "statusCode": 201,
+  "correlationId": "req-2026-04-23-001",
+  "severity": "Information",
+  "notes": "Cadastro realizado com sucesso."
+}
+
+###
+
+### Listar eventos
+GET {{AuditService.API_HostAddress}}/api/audit-events?limit=20
+Accept: application/json
+
+###
+
+### Resumo dos eventos
+GET {{AuditService.API_HostAddress}}/api/audit-events/summary
+Accept: application/json

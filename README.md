@@ -1,46 +1,73 @@
 # AuditService.API
 
-API em ASP.NET Core para centralizar trilhas de auditoria e logs de multiplos sistemas corporativos em um ponto unico.
+API em ASP.NET Core para registrar, consultar e resumir eventos de auditoria de multiplos sistemas em um ponto unico.
+
+## O que o projeto entrega
+
+- Recebimento padronizado de eventos de auditoria
+- Persistencia em SQL Server com Dapper
+- Consulta com filtros por aplicacao, usuario, status e periodo
+- Resumo rapido para analise operacional
+- Swagger como camada visual para exploracao e teste
+- Script SQL versionado para reproducao do banco
 
 ## Stack
 
-- ASP.NET Core
-- .NET 9
+- ASP.NET Core / .NET 9
 - SQL Server
+- Dapper
 - Swagger / OpenAPI
 
-## Objetivo
+## Endpoints principais
 
-Padronizar o recebimento de eventos de auditoria, facilitar rastreabilidade e apoiar cenarios de compliance e suporte operacional.
-
-## Estrutura
-
-- `Program.cs`: configuracao da API e endpoints
-- `appsettings.json`: configuracao local
-- `AuditService.API.csproj`: projeto principal
-
-## Como rodar
-
-1. Configure a string de conexao localmente.
-2. Crie a tabela de auditoria no SQL Server.
-3. Rode `dotnet run`.
-4. Acesse o Swagger para validar os endpoints.
-5. Use `appsettings.Local.example.json` como modelo de configuracao local.
+- `POST /api/audit-events`
+- `GET /api/audit-events`
+- `GET /api/audit-events/{id}`
+- `GET /api/audit-events/summary`
+- `GET /healthz`
 
 ## Exemplo de payload
 
 ```json
 {
-  "applicationName": "Sistema",
-  "usuario": "WAYNE",
+  "applicationName": "PortalClinico",
+  "usuario": "diogo.tognolli",
   "metodo": "POST",
   "endpoint": "/api/pacientes",
-  "payloadRequest": "{ \"id\": 123, \"acao\": \"consulta\" }",
-  "statusCode": 200
+  "payloadRequest": "{ \"pacienteId\": 321 }",
+  "payloadResponse": "{ \"success\": true }",
+  "statusCode": 201,
+  "correlationId": "req-2026-04-23-001",
+  "severity": "Information",
+  "notes": "Cadastro realizado com sucesso."
 }
 ```
 
-## Observacao
+## Como rodar
 
-Este projeto tem bom valor de portfolio para perfil back-end por mostrar integracao, rastreabilidade e preocupacao com observabilidade.
-Ele agora tambem expõe `GET /healthz` para verificacao simples de disponibilidade.
+1. Ajuste `ConnectionStrings:DefaultConnection`
+2. Use `appsettings.Local.example.json` como base para ambiente local
+3. Rode `dotnet run`
+4. Acesse `/swagger`
+5. Opcionalmente execute `database/create-audit-table.sql` manualmente
+
+Observacao:
+Ao iniciar, a API ja tenta garantir a existencia da tabela `dbo.AuditEvents`.
+
+## Estrutura
+
+- `Controllers/AuditEventsController.cs`: endpoints principais
+- `Contracts`: payloads de entrada e filtros
+- `Models`: entidades e resumo
+- `Repositories`: persistencia com Dapper
+- `database/create-audit-table.sql`: script versionado do schema
+
+## Valor de portfolio
+
+Esse projeto reforca um perfil back-end por mostrar:
+
+- integracao com banco relacional
+- rastreabilidade
+- padronizacao de eventos
+- filtros de consulta
+- preocupacao com observabilidade e suporte operacional
